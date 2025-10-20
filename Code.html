@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chúc Mừng 20/10</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Arial", sans-serif;
+                overflow: hidden;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+
+            #qrScreen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                transition: opacity 0.5s;
+            }
+
+            #qrScreen.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .qr-container {
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                text-align: center;
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+            }
+
+            .qr-container h2 {
+                color: #d63384;
+                margin-bottom: 20px;
+                font-size: 28px;
+            }
+
+            .qr-box {
+                width: 250px;
+                height: 250px;
+                background: white;
+                border: 5px solid #d63384;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 20px auto;
+                position: relative;
+                overflow: hidden;
+                padding: 10px;
+            }
+
+            #qrcode {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #qrcode canvas,
+            #qrcode img {
+                max-width: 100% !important;
+                max-height: 100% !important;
+                width: auto !important;
+                height: auto !important;
+            }
+
+            #scanBtn {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                border: none;
+                padding: 15px 40px;
+                font-size: 18px;
+                border-radius: 50px;
+                cursor: pointer;
+                margin-top: 20px;
+                transition: transform 0.3s;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            #scanBtn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            #mainScreen {
+                display: none;
+                width: 100%;
+                height: 100vh;
+                position: relative;
+                overflow: hidden;
+            }
+
+            #mainScreen.show {
+                display: block;
+            }
+
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .message-container {
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, 0);
+                text-align: center;
+                color: white;
+                z-index: 10;
+                animation: fadeInUp 2s;
+                background: rgba(0, 0, 0, 0.4);
+                padding: 30px 40px;
+                border-radius: 20px;
+                backdrop-filter: blur(10px);
+            }
+
+            .cube-container {
+                position: absolute;
+                bottom: 10%;
+                left: 50%;
+                transform: translateX(-50%);
+                perspective: 1000px;
+                z-index: 10;
+            }
+
+            .cube {
+                width: 200px;
+                height: 200px;
+                position: relative;
+                transform-style: preserve-3d;
+                animation: rotateCube 10s infinite linear;
+                cursor: pointer;
+            }
+
+            .cube:hover {
+                animation-play-state: paused;
+            }
+
+            @keyframes rotateCube {
+                from {
+                    transform: rotateX(0deg) rotateY(0deg);
+                }
+                to {
+                    transform: rotateX(360deg) rotateY(360deg);
+                }
+            }
+
+            .cube-face {
+                position: absolute;
+                width: 200px;
+                height: 200px;
+                border: 3px solid rgba(255, 255, 255, 0.8);
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+
+            .cube-face img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .cube-face-color {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 60px;
+            }
+
+            .face1 {
+                background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            }
+            .face2 {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            }
+            .face3 {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            }
+            .face4 {
+                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            }
+
+            .cube-face.front {
+                transform: translateZ(100px);
+            }
+
+            .cube-face.back {
+                transform: rotateY(180deg) translateZ(100px);
+            }
+
+            .cube-face.right {
+                transform: rotateY(90deg) translateZ(100px);
+            }
+
+            .cube-face.left {
+                transform: rotateY(-90deg) translateZ(100px);
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translate(-50%, -40%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translate(-50%, -50%);
+                }
+            }
+
+            .message-container h1 {
+                font-size: 48px;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+                background: linear-gradient(45deg, #ff6b9d, #feca57);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .message-container p {
+                font-size: 24px;
+                line-height: 1.6;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            }
+
+            .flower {
+                position: absolute;
+                font-size: 30px;
+                animation: fall linear infinite;
+                z-index: 5;
+            }
+
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+
+            .heart {
+                position: absolute;
+                font-size: 20px;
+                animation: floatHeart 4s ease-in-out infinite;
+                z-index: 5;
+            }
+
+            @keyframes floatHeart {
+                0%,
+                100% {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
+                50% {
+                    transform: translateY(-20px) scale(1.2);
+                    opacity: 0.8;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="qrScreen">
+            <div class="qr-container">
+                <h2>🌸 Quét QR Code để nhận lời chúc 🌸</h2>
+                <div class="qr-box">
+                    <div id="qrcode"></div>
+                </div>
+                <p style="color: #666; margin-top: 10px">
+                    Quét mã QR này bằng điện thoại
+                </p>
+                <button id="scanBtn">✨ Quét QR Code ✨</button>
+            </div>
+        </div>
+
+        <div id="mainScreen">
+            <canvas id="fireworksCanvas"></canvas>
+            <div class="message-container">
+                <h1>🌹 Chúc Mừng 20/10 🌹</h1>
+                <p>Chúc các chị em phụ nữ</p>
+                <p>Luôn xinh đẹp, hạnh phúc và thành công</p>
+                <p>Như những bông hoa rực rỡ</p>
+                <p>Mãi tươi tắn, quyến rũ và đầy sức sống!</p>
+                <p style="margin-top: 20px; font-size: 28px">💖✨🌺</p>
+            </div>
+
+            <div class="cube-container">
+                <div class="cube">
+                    <div class="cube-face front">
+                        <img
+                            src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400"
+                            alt="Hoa 1"
+                        />
+                    </div>
+                    <div class="cube-face back">
+                        <img
+                            src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400"
+                            alt="Hoa 2"
+                        />
+                    </div>
+                    <div class="cube-face right">
+                        <img
+                            src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400"
+                            alt="Hoa 3"
+                        />
+                    </div>
+                    <div class="cube-face left">
+                        <img
+                            src="https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=400"
+                            alt="Hoa 4"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script>
+            // Generate QR Code
+            // Thay thế URL bên dưới bằng link của bạn
+            const currentURL = window.location.href
+            new QRCode(document.getElementById("qrcode"), {
+                text: currentURL,
+                width: 220,
+                height: 220,
+                colorDark: "#d63384",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H,
+            })
+
+            // QR Screen Handler
+            document
+                .getElementById("scanBtn")
+                .addEventListener("click", function () {
+                    document.getElementById("qrScreen").classList.add("hidden")
+                    setTimeout(() => {
+                        document
+                            .getElementById("mainScreen")
+                            .classList.add("show")
+                        initFireworks()
+                        createFallingFlowers()
+                        createFloatingHearts()
+                    }, 500)
+                })
+
+            // Fireworks Canvas
+            const canvas = document.getElementById("fireworksCanvas")
+            const ctx = canvas.getContext("2d")
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+
+            let fireworks = []
+            let particles = []
+
+            class Firework {
+                constructor() {
+                    this.x = Math.random() * canvas.width
+                    this.y = canvas.height
+                    this.targetY = Math.random() * canvas.height * 0.5
+                    this.speed = 3 + Math.random() * 2
+                    this.hue = Math.random() * 360
+                }
+
+                update() {
+                    this.y -= this.speed
+                    if (this.y <= this.targetY) {
+                        this.explode()
+                        return false
+                    }
+                    return true
+                }
+
+                draw() {
+                    ctx.beginPath()
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2)
+                    ctx.fillStyle = `hsl(${this.hue}, 100%, 50%)`
+                    ctx.fill()
+                }
+
+                explode() {
+                    for (let i = 0; i < 100; i++) {
+                        particles.push(new Particle(this.x, this.y, this.hue))
+                    }
+                }
+            }
+
+            class Particle {
+                constructor(x, y, hue) {
+                    this.x = x
+                    this.y = y
+                    this.hue = hue + Math.random() * 50
+                    this.velocity = {
+                        x: (Math.random() - 0.5) * 8,
+                        y: (Math.random() - 0.5) * 8,
+                    }
+                    this.gravity = 0.05
+                    this.friction = 0.98
+                    this.alpha = 1
+                    this.decay = Math.random() * 0.02 + 0.01
+                }
+
+                update() {
+                    this.velocity.x *= this.friction
+                    this.velocity.y *= this.friction
+                    this.velocity.y += this.gravity
+                    this.x += this.velocity.x
+                    this.y += this.velocity.y
+                    this.alpha -= this.decay
+                    return this.alpha > 0
+                }
+
+                draw() {
+                    ctx.save()
+                    ctx.globalAlpha = this.alpha
+                    ctx.beginPath()
+                    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2)
+                    ctx.fillStyle = `hsl(${this.hue}, 100%, 50%)`
+                    ctx.fill()
+                    ctx.restore()
+                }
+            }
+
+            function initFireworks() {
+                function animate() {
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.1)"
+                    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+                    if (Math.random() < 0.05) {
+                        fireworks.push(new Firework())
+                    }
+
+                    fireworks = fireworks.filter((fw) => {
+                        fw.draw()
+                        return fw.update()
+                    })
+
+                    particles = particles.filter((p) => {
+                        p.draw()
+                        return p.update()
+                    })
+
+                    requestAnimationFrame(animate)
+                }
+                animate()
+            }
+
+            // Falling Flowers
+            function createFallingFlowers() {
+                const flowers = ["🌸", "🌺", "🌼", "🌻", "🌷", "🥀", "💐", "🏵️"]
+                setInterval(() => {
+                    const flower = document.createElement("div")
+                    flower.className = "flower"
+                    flower.textContent =
+                        flowers[Math.floor(Math.random() * flowers.length)]
+                    flower.style.left = Math.random() * 100 + "%"
+                    flower.style.animationDuration = Math.random() * 3 + 4 + "s"
+                    flower.style.opacity = Math.random() * 0.5 + 0.5
+                    document.getElementById("mainScreen").appendChild(flower)
+
+                    setTimeout(() => flower.remove(), 7000)
+                }, 300)
+            }
+
+            // Floating Hearts
+            function createFloatingHearts() {
+                setInterval(() => {
+                    const heart = document.createElement("div")
+                    heart.className = "heart"
+                    heart.textContent = "💕"
+                    heart.style.left = Math.random() * 100 + "%"
+                    heart.style.top = Math.random() * 100 + "%"
+                    heart.style.animationDelay = Math.random() * 2 + "s"
+                    document.getElementById("mainScreen").appendChild(heart)
+
+                    setTimeout(() => heart.remove(), 4000)
+                }, 800)
+            }
+
+            // Resize Handler
+            window.addEventListener("resize", () => {
+                canvas.width = window.innerWidth
+                canvas.height = window.innerHeight
+            })
+        </script>
+    </body>
+</html>
